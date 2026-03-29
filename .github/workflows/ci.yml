@@ -1,4 +1,4 @@
-name: Chat App CI Pipeline
+name: Chat App CI-CD Pipeline
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - devops-learning
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,3 +33,14 @@ jobs:
 
       - name: Build Frontend Docker Image
         run: docker build -t chat-frontend ./frontend
+
+      - name: Run Containers (CD Step)
+        run: |
+          docker stop chat-backend || true
+          docker stop chat-frontend || true
+
+          docker rm chat-backend || true
+          docker rm chat-frontend || true
+
+          docker run -d -p 5000:5000 --name chat-backend chat-backend
+          docker run -d -p 3000:3000 --name chat-frontend chat-frontend
